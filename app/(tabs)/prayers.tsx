@@ -1,4 +1,4 @@
-import { GradientBackground } from '@/components/nusuk/GradientBackground';
+import { GradientBackground } from '@/components/home/GradientBackground';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { scheduleDailyPrayers } from '@/utils/notifications';
 import { getLocationAndMethod } from '@/utils/prayerCalculation';

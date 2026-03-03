@@ -1,5 +1,5 @@
-import { GradientBackground } from '@/components/nusuk/GradientBackground';
-import ModernCompass from '@/components/nusuk/ModernCompass';
+import { GradientBackground } from '@/components/home/GradientBackground';
+import ModernCompass from '@/components/home/ModernCompass';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Coordinates } from 'adhan';

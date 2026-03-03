@@ -1,8 +1,8 @@
-import { GradientBackground } from '@/components/nusuk/GradientBackground';
-import { Header } from '@/components/nusuk/Header';
-import { PrayerTimer } from '@/components/nusuk/PrayerTimer';
-import { QuickAccess } from '@/components/nusuk/QuickAccess';
-import { QuranSheet } from '@/components/nusuk/QuranSheet';
+import { GradientBackground } from '@/components/home/GradientBackground';
+import { Header } from '@/components/home/Header';
+import { PrayerTimer } from '@/components/home/PrayerTimer';
+import { QuickAccess } from '@/components/home/QuickAccess';
+import { QuranSheet } from '@/components/home/QuranSheet';
 import React from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

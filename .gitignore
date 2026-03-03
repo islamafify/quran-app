@@ -43,15 +43,13 @@ app-example
 /android
 
 .specify
+/specs
 .agent
 
 app.json
 eas.json
 .env
-ios/
-android/
-*.jks
-*.p8
+
 
 /scripts
 

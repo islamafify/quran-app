@@ -35,6 +35,7 @@ export default function RootLayout() {
     ReadexPro_500Medium,
     ReadexPro_600SemiBold,
     ReadexPro_700Bold,
+    UthmanicHafs: require('../assets/fonts/uthmanic_hafs_v22.ttf'),
   });
 
   useEffect(() => {
@@ -59,7 +60,7 @@ export default function RootLayout() {
       {/* تحميل مسبق في الخلفية لصفحة القرآن لكي تفتح فوراً عند الطلب */}
       <View style={{ width: 1, height: 1, opacity: 0.01, position: 'absolute', top: -9999, left: -9999 }} pointerEvents="none">
         <WebView
-          source={{ uri: 'https://moshfy.com/p/quran/' }}
+          source={{ uri: 'https://alquran-alkarim.com/apps/' }}
           domStorageEnabled={true}
           cacheEnabled={true}
           cacheMode="LOAD_CACHE_ELSE_NETWORK"

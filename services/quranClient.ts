@@ -1,3 +1,4 @@
+// @ts-ignore
 import { QuranClient } from '@quranjs/api';
 
 let instance: QuranClient | null = null;

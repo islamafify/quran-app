@@ -1,4 +1,4 @@
-import { OfflineQuranReader } from '@/components/nusuk/OfflineQuranReader';
+import { OfflineQuranReader } from '@/components/home/OfflineQuranReader';
 import NetInfo from '@react-native-community/netinfo';
 import { Stack } from 'expo-router';
 import React, { useEffect, useState } from 'react';
@@ -41,7 +41,7 @@ export default function QuranWebScreen() {
             ) : (
                 <View style={styles.webview}>
                     <WebView
-                        source={{ uri: 'https://moshfy.com/p/quran/' }}
+                        source={{ uri: 'https://alquran-alkarim.com/apps/' }}
                         style={styles.webview}
                         domStorageEnabled={true}
                         cacheEnabled={true}

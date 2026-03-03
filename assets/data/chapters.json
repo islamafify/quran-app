@@ -1,0 +1,1028 @@
+[
+  {
+    "id": 1,
+    "name": "الفاتحة",
+    "versesCount": 7,
+    "pages": [
+      1,
+      1
+    ]
+  },
+  {
+    "id": 2,
+    "name": "البقرة",
+    "versesCount": 286,
+    "pages": [
+      2,
+      49
+    ]
+  },
+  {
+    "id": 3,
+    "name": "آل عمران",
+    "versesCount": 200,
+    "pages": [
+      50,
+      76
+    ]
+  },
+  {
+    "id": 4,
+    "name": "النساء",
+    "versesCount": 176,
+    "pages": [
+      77,
+      106
+    ]
+  },
+  {
+    "id": 5,
+    "name": "المائدة",
+    "versesCount": 120,
+    "pages": [
+      106,
+      127
+    ]
+  },
+  {
+    "id": 6,
+    "name": "الأنعام",
+    "versesCount": 165,
+    "pages": [
+      128,
+      150
+    ]
+  },
+  {
+    "id": 7,
+    "name": "الأعراف",
+    "versesCount": 206,
+    "pages": [
+      151,
+      176
+    ]
+  },
+  {
+    "id": 8,
+    "name": "الأنفال",
+    "versesCount": 75,
+    "pages": [
+      177,
+      186
+    ]
+  },
+  {
+    "id": 9,
+    "name": "التوبة",
+    "versesCount": 129,
+    "pages": [
+      187,
+      207
+    ]
+  },
+  {
+    "id": 10,
+    "name": "يونس",
+    "versesCount": 109,
+    "pages": [
+      208,
+      221
+    ]
+  },
+  {
+    "id": 11,
+    "name": "هود",
+    "versesCount": 123,
+    "pages": [
+      221,
+      235
+    ]
+  },
+  {
+    "id": 12,
+    "name": "يوسف",
+    "versesCount": 111,
+    "pages": [
+      235,
+      248
+    ]
+  },
+  {
+    "id": 13,
+    "name": "الرعد",
+    "versesCount": 43,
+    "pages": [
+      249,
+      255
+    ]
+  },
+  {
+    "id": 14,
+    "name": "ابراهيم",
+    "versesCount": 52,
+    "pages": [
+      255,
+      261
+    ]
+  },
+  {
+    "id": 15,
+    "name": "الحجر",
+    "versesCount": 99,
+    "pages": [
+      262,
+      267
+    ]
+  },
+  {
+    "id": 16,
+    "name": "النحل",
+    "versesCount": 128,
+    "pages": [
+      267,
+      281
+    ]
+  },
+  {
+    "id": 17,
+    "name": "الإسراء",
+    "versesCount": 111,
+    "pages": [
+      282,
+      293
+    ]
+  },
+  {
+    "id": 18,
+    "name": "الكهف",
+    "versesCount": 110,
+    "pages": [
+      293,
+      304
+    ]
+  },
+  {
+    "id": 19,
+    "name": "مريم",
+    "versesCount": 98,
+    "pages": [
+      305,
+      312
+    ]
+  },
+  {
+    "id": 20,
+    "name": "طه",
+    "versesCount": 135,
+    "pages": [
+      312,
+      321
+    ]
+  },
+  {
+    "id": 21,
+    "name": "الأنبياء",
+    "versesCount": 112,
+    "pages": [
+      322,
+      331
+    ]
+  },
+  {
+    "id": 22,
+    "name": "الحج",
+    "versesCount": 78,
+    "pages": [
+      332,
+      341
+    ]
+  },
+  {
+    "id": 23,
+    "name": "المؤمنون",
+    "versesCount": 118,
+    "pages": [
+      342,
+      349
+    ]
+  },
+  {
+    "id": 24,
+    "name": "النور",
+    "versesCount": 64,
+    "pages": [
+      350,
+      359
+    ]
+  },
+  {
+    "id": 25,
+    "name": "الفرقان",
+    "versesCount": 77,
+    "pages": [
+      359,
+      366
+    ]
+  },
+  {
+    "id": 26,
+    "name": "الشعراء",
+    "versesCount": 227,
+    "pages": [
+      367,
+      376
+    ]
+  },
+  {
+    "id": 27,
+    "name": "النمل",
+    "versesCount": 93,
+    "pages": [
+      377,
+      385
+    ]
+  },
+  {
+    "id": 28,
+    "name": "القصص",
+    "versesCount": 88,
+    "pages": [
+      385,
+      396
+    ]
+  },
+  {
+    "id": 29,
+    "name": "العنكبوت",
+    "versesCount": 69,
+    "pages": [
+      396,
+      404
+    ]
+  },
+  {
+    "id": 30,
+    "name": "الروم",
+    "versesCount": 60,
+    "pages": [
+      404,
+      410
+    ]
+  },
+  {
+    "id": 31,
+    "name": "لقمان",
+    "versesCount": 34,
+    "pages": [
+      411,
+      414
+    ]
+  },
+  {
+    "id": 32,
+    "name": "السجدة",
+    "versesCount": 30,
+    "pages": [
+      415,
+      417
+    ]
+  },
+  {
+    "id": 33,
+    "name": "الأحزاب",
+    "versesCount": 73,
+    "pages": [
+      418,
+      427
+    ]
+  },
+  {
+    "id": 34,
+    "name": "سبإ",
+    "versesCount": 54,
+    "pages": [
+      428,
+      434
+    ]
+  },
+  {
+    "id": 35,
+    "name": "فاطر",
+    "versesCount": 45,
+    "pages": [
+      434,
+      440
+    ]
+  },
+  {
+    "id": 36,
+    "name": "يس",
+    "versesCount": 83,
+    "pages": [
+      440,
+      445
+    ]
+  },
+  {
+    "id": 37,
+    "name": "الصافات",
+    "versesCount": 182,
+    "pages": [
+      446,
+      452
+    ]
+  },
+  {
+    "id": 38,
+    "name": "ص",
+    "versesCount": 88,
+    "pages": [
+      453,
+      458
+    ]
+  },
+  {
+    "id": 39,
+    "name": "الزمر",
+    "versesCount": 75,
+    "pages": [
+      458,
+      467
+    ]
+  },
+  {
+    "id": 40,
+    "name": "غافر",
+    "versesCount": 85,
+    "pages": [
+      467,
+      476
+    ]
+  },
+  {
+    "id": 41,
+    "name": "فصلت",
+    "versesCount": 54,
+    "pages": [
+      477,
+      482
+    ]
+  },
+  {
+    "id": 42,
+    "name": "الشورى",
+    "versesCount": 53,
+    "pages": [
+      483,
+      489
+    ]
+  },
+  {
+    "id": 43,
+    "name": "الزخرف",
+    "versesCount": 89,
+    "pages": [
+      489,
+      495
+    ]
+  },
+  {
+    "id": 44,
+    "name": "الدخان",
+    "versesCount": 59,
+    "pages": [
+      496,
+      498
+    ]
+  },
+  {
+    "id": 45,
+    "name": "الجاثية",
+    "versesCount": 37,
+    "pages": [
+      499,
+      502
+    ]
+  },
+  {
+    "id": 46,
+    "name": "الأحقاف",
+    "versesCount": 35,
+    "pages": [
+      502,
+      506
+    ]
+  },
+  {
+    "id": 47,
+    "name": "محمد",
+    "versesCount": 38,
+    "pages": [
+      507,
+      510
+    ]
+  },
+  {
+    "id": 48,
+    "name": "الفتح",
+    "versesCount": 29,
+    "pages": [
+      511,
+      515
+    ]
+  },
+  {
+    "id": 49,
+    "name": "الحجرات",
+    "versesCount": 18,
+    "pages": [
+      515,
+      517
+    ]
+  },
+  {
+    "id": 50,
+    "name": "ق",
+    "versesCount": 45,
+    "pages": [
+      518,
+      520
+    ]
+  },
+  {
+    "id": 51,
+    "name": "الذاريات",
+    "versesCount": 60,
+    "pages": [
+      520,
+      523
+    ]
+  },
+  {
+    "id": 52,
+    "name": "الطور",
+    "versesCount": 49,
+    "pages": [
+      523,
+      525
+    ]
+  },
+  {
+    "id": 53,
+    "name": "النجم",
+    "versesCount": 62,
+    "pages": [
+      526,
+      528
+    ]
+  },
+  {
+    "id": 54,
+    "name": "القمر",
+    "versesCount": 55,
+    "pages": [
+      528,
+      531
+    ]
+  },
+  {
+    "id": 55,
+    "name": "الرحمن",
+    "versesCount": 78,
+    "pages": [
+      531,
+      534
+    ]
+  },
+  {
+    "id": 56,
+    "name": "الواقعة",
+    "versesCount": 96,
+    "pages": [
+      534,
+      537
+    ]
+  },
+  {
+    "id": 57,
+    "name": "الحديد",
+    "versesCount": 29,
+    "pages": [
+      537,
+      541
+    ]
+  },
+  {
+    "id": 58,
+    "name": "المجادلة",
+    "versesCount": 22,
+    "pages": [
+      542,
+      545
+    ]
+  },
+  {
+    "id": 59,
+    "name": "الحشر",
+    "versesCount": 24,
+    "pages": [
+      545,
+      548
+    ]
+  },
+  {
+    "id": 60,
+    "name": "الممتحنة",
+    "versesCount": 13,
+    "pages": [
+      549,
+      551
+    ]
+  },
+  {
+    "id": 61,
+    "name": "الصف",
+    "versesCount": 14,
+    "pages": [
+      551,
+      552
+    ]
+  },
+  {
+    "id": 62,
+    "name": "الجمعة",
+    "versesCount": 11,
+    "pages": [
+      553,
+      554
+    ]
+  },
+  {
+    "id": 63,
+    "name": "المنافقون",
+    "versesCount": 11,
+    "pages": [
+      554,
+      555
+    ]
+  },
+  {
+    "id": 64,
+    "name": "التغابن",
+    "versesCount": 18,
+    "pages": [
+      556,
+      557
+    ]
+  },
+  {
+    "id": 65,
+    "name": "الطلاق",
+    "versesCount": 12,
+    "pages": [
+      558,
+      559
+    ]
+  },
+  {
+    "id": 66,
+    "name": "التحريم",
+    "versesCount": 12,
+    "pages": [
+      560,
+      561
+    ]
+  },
+  {
+    "id": 67,
+    "name": "الملك",
+    "versesCount": 30,
+    "pages": [
+      562,
+      564
+    ]
+  },
+  {
+    "id": 68,
+    "name": "القلم",
+    "versesCount": 52,
+    "pages": [
+      564,
+      566
+    ]
+  },
+  {
+    "id": 69,
+    "name": "الحاقة",
+    "versesCount": 52,
+    "pages": [
+      566,
+      568
+    ]
+  },
+  {
+    "id": 70,
+    "name": "المعارج",
+    "versesCount": 44,
+    "pages": [
+      568,
+      570
+    ]
+  },
+  {
+    "id": 71,
+    "name": "نوح",
+    "versesCount": 28,
+    "pages": [
+      570,
+      571
+    ]
+  },
+  {
+    "id": 72,
+    "name": "الجن",
+    "versesCount": 28,
+    "pages": [
+      572,
+      573
+    ]
+  },
+  {
+    "id": 73,
+    "name": "المزمل",
+    "versesCount": 20,
+    "pages": [
+      574,
+      575
+    ]
+  },
+  {
+    "id": 74,
+    "name": "المدثر",
+    "versesCount": 56,
+    "pages": [
+      575,
+      577
+    ]
+  },
+  {
+    "id": 75,
+    "name": "القيامة",
+    "versesCount": 40,
+    "pages": [
+      577,
+      578
+    ]
+  },
+  {
+    "id": 76,
+    "name": "الانسان",
+    "versesCount": 31,
+    "pages": [
+      578,
+      580
+    ]
+  },
+  {
+    "id": 77,
+    "name": "المرسلات",
+    "versesCount": 50,
+    "pages": [
+      580,
+      581
+    ]
+  },
+  {
+    "id": 78,
+    "name": "النبإ",
+    "versesCount": 40,
+    "pages": [
+      582,
+      583
+    ]
+  },
+  {
+    "id": 79,
+    "name": "النازعات",
+    "versesCount": 46,
+    "pages": [
+      583,
+      584
+    ]
+  },
+  {
+    "id": 80,
+    "name": "عبس",
+    "versesCount": 42,
+    "pages": [
+      585,
+      585
+    ]
+  },
+  {
+    "id": 81,
+    "name": "التكوير",
+    "versesCount": 29,
+    "pages": [
+      586,
+      586
+    ]
+  },
+  {
+    "id": 82,
+    "name": "الإنفطار",
+    "versesCount": 19,
+    "pages": [
+      587,
+      587
+    ]
+  },
+  {
+    "id": 83,
+    "name": "المطففين",
+    "versesCount": 36,
+    "pages": [
+      587,
+      589
+    ]
+  },
+  {
+    "id": 84,
+    "name": "الإنشقاق",
+    "versesCount": 25,
+    "pages": [
+      589,
+      589
+    ]
+  },
+  {
+    "id": 85,
+    "name": "البروج",
+    "versesCount": 22,
+    "pages": [
+      590,
+      590
+    ]
+  },
+  {
+    "id": 86,
+    "name": "الطارق",
+    "versesCount": 17,
+    "pages": [
+      591,
+      591
+    ]
+  },
+  {
+    "id": 87,
+    "name": "الأعلى",
+    "versesCount": 19,
+    "pages": [
+      591,
+      592
+    ]
+  },
+  {
+    "id": 88,
+    "name": "الغاشية",
+    "versesCount": 26,
+    "pages": [
+      592,
+      592
+    ]
+  },
+  {
+    "id": 89,
+    "name": "الفجر",
+    "versesCount": 30,
+    "pages": [
+      593,
+      594
+    ]
+  },
+  {
+    "id": 90,
+    "name": "البلد",
+    "versesCount": 20,
+    "pages": [
+      594,
+      594
+    ]
+  },
+  {
+    "id": 91,
+    "name": "الشمس",
+    "versesCount": 15,
+    "pages": [
+      595,
+      595
+    ]
+  },
+  {
+    "id": 92,
+    "name": "الليل",
+    "versesCount": 21,
+    "pages": [
+      595,
+      596
+    ]
+  },
+  {
+    "id": 93,
+    "name": "الضحى",
+    "versesCount": 11,
+    "pages": [
+      596,
+      596
+    ]
+  },
+  {
+    "id": 94,
+    "name": "الشرح",
+    "versesCount": 8,
+    "pages": [
+      596,
+      596
+    ]
+  },
+  {
+    "id": 95,
+    "name": "التين",
+    "versesCount": 8,
+    "pages": [
+      597,
+      597
+    ]
+  },
+  {
+    "id": 96,
+    "name": "العلق",
+    "versesCount": 19,
+    "pages": [
+      597,
+      597
+    ]
+  },
+  {
+    "id": 97,
+    "name": "القدر",
+    "versesCount": 5,
+    "pages": [
+      598,
+      598
+    ]
+  },
+  {
+    "id": 98,
+    "name": "البينة",
+    "versesCount": 8,
+    "pages": [
+      598,
+      599
+    ]
+  },
+  {
+    "id": 99,
+    "name": "الزلزلة",
+    "versesCount": 8,
+    "pages": [
+      599,
+      599
+    ]
+  },
+  {
+    "id": 100,
+    "name": "العاديات",
+    "versesCount": 11,
+    "pages": [
+      599,
+      600
+    ]
+  },
+  {
+    "id": 101,
+    "name": "القارعة",
+    "versesCount": 11,
+    "pages": [
+      600,
+      600
+    ]
+  },
+  {
+    "id": 102,
+    "name": "التكاثر",
+    "versesCount": 8,
+    "pages": [
+      600,
+      600
+    ]
+  },
+  {
+    "id": 103,
+    "name": "العصر",
+    "versesCount": 3,
+    "pages": [
+      601,
+      601
+    ]
+  },
+  {
+    "id": 104,
+    "name": "الهمزة",
+    "versesCount": 9,
+    "pages": [
+      601,
+      601
+    ]
+  },
+  {
+    "id": 105,
+    "name": "الفيل",
+    "versesCount": 5,
+    "pages": [
+      601,
+      601
+    ]
+  },
+  {
+    "id": 106,
+    "name": "قريش",
+    "versesCount": 4,
+    "pages": [
+      602,
+      602
+    ]
+  },
+  {
+    "id": 107,
+    "name": "الماعون",
+    "versesCount": 7,
+    "pages": [
+      602,
+      602
+    ]
+  },
+  {
+    "id": 108,
+    "name": "الكوثر",
+    "versesCount": 3,
+    "pages": [
+      602,
+      602
+    ]
+  },
+  {
+    "id": 109,
+    "name": "الكافرون",
+    "versesCount": 6,
+    "pages": [
+      603,
+      603
+    ]
+  },
+  {
+    "id": 110,
+    "name": "النصر",
+    "versesCount": 3,
+    "pages": [
+      603,
+      603
+    ]
+  },
+  {
+    "id": 111,
+    "name": "المسد",
+    "versesCount": 5,
+    "pages": [
+      603,
+      603
+    ]
+  },
+  {
+    "id": 112,
+    "name": "الإخلاص",
+    "versesCount": 4,
+    "pages": [
+      604,
+      604
+    ]
+  },
+  {
+    "id": 113,
+    "name": "الفلق",
+    "versesCount": 5,
+    "pages": [
+      604,
+      604
+    ]
+  },
+  {
+    "id": 114,
+    "name": "الناس",
+    "versesCount": 6,
+    "pages": [
+      604,
+      604
+    ]
+  }
+]
