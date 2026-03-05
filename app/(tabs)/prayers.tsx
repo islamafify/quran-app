@@ -5,9 +5,9 @@ import { getLocationAndMethod } from '@/utils/prayerCalculation';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CalculationParameters, Coordinates, PrayerTimes, SunnahTimes } from 'adhan';
 import * as Notifications from 'expo-notifications';
-import { Stack } from 'expo-router';
-import { BellRing, ChevronUp, Volume2, VolumeX } from 'lucide-react-native';
-import React, { useState } from 'react';
+import { Stack, useFocusEffect, useRouter } from 'expo-router';
+import { BellRing, ChevronUp, Home, Volume2, VolumeX } from 'lucide-react-native';
+import React, { useCallback, useState } from 'react';
 import { ActivityIndicator, Dimensions, Modal, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
@@ -20,6 +20,7 @@ const KAABA_LNG = 39.826206;
 
 export default function PrayerTimesScreen() {
     const insets = useSafeAreaInsets();
+    const router = useRouter();
     const colorScheme = useColorScheme();
     const [prayerTimes, setPrayerTimes] = useState<any>(null);
     const [locationName, setLocationName] = useState('جاري تحديد الموقع...');
@@ -28,9 +29,10 @@ export default function PrayerTimesScreen() {
     const [errorMsg, setErrorMsg] = useState<string | null>(null);
     const [distanceToKaaba, setDistanceToKaaba] = useState(0);
     const [isUsingCache, setIsUsingCache] = useState(false);
+    const [calcMethodName, setCalcMethodName] = useState('');
 
     // Notification logic
-    const [notificationSettings, setNotificationSettings] = useState<Record<string, boolean>>({});
+    const [notificationSettings, setNotificationSettings] = useState<Record<string, boolean | string>>({});
     const [latestCoords, setLatestCoords] = useState<any>(null);
     const [latestParams, setLatestParams] = useState<any>(null);
 
@@ -57,48 +59,57 @@ export default function PrayerTimesScreen() {
 
     const STORAGE_KEY = '@prayer_screen_data_v1';
 
-    // Initial Location & Prayer Times
-    React.useEffect(() => {
-        (async () => {
-            try {
-                // 0. Load Notification Settings
-                const settingsStr = await AsyncStorage.getItem('@prayer_notifications_settings_v1');
-                if (settingsStr) {
-                    setNotificationSettings(JSON.parse(settingsStr));
+    // Initial Location & Prayer Times - re-runs when screen is focused
+    useFocusEffect(
+        useCallback(() => {
+            (async () => {
+                try {
+                    // 0. Load Notification Settings
+                    const settingsStr = await AsyncStorage.getItem('@prayer_notifications_settings_v1');
+                    if (settingsStr) {
+                        setNotificationSettings(JSON.parse(settingsStr));
+                    }
+
+                    // Load calculation method name
+                    const calcMethodId = await AsyncStorage.getItem('@settings_calc_method') || 'Egyptian';
+                    const methodNames: Record<string, string> = {
+                        'Egyptian': 'الهيئة المصرية',
+                        'UmmAlQura': 'أم القرى',
+                        'MWL': 'رابطة العالم الإسلامي',
+                        'ISNA': 'الجمعية الإسلامية لأمريكا',
+                    };
+                    setCalcMethodName(methodNames[calcMethodId] || calcMethodId);
+
+                    // 1. Try Cache First
+                    const cached = await AsyncStorage.getItem(STORAGE_KEY);
+                    if (cached) {
+                        const data = JSON.parse(cached);
+                        updateState(data.coords, data.params, data.city, data.country);
+                        setIsUsingCache(true);
+                    }
+
+                    // 2. Fetch Fresh Data
+                    const { coords, params, city, country } = await getLocationAndMethod();
+
+                    // 3. Update UI & Cache
+                    updateState(coords, params, city, country);
+                    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ coords, params, city, country }));
+                    setIsUsingCache(false);
+
+                } catch (error) {
+                    const cached = await AsyncStorage.getItem(STORAGE_KEY);
+                    if (!cached) {
+                        setErrorMsg('حدث خطأ أثناء تحديد الموقع');
+                    }
+                    console.error(error);
+                } finally {
+                    setLoading(false);
                 }
+            })();
+        }, [])
+    );
 
-                // 1. Try Cache First
-                const cached = await AsyncStorage.getItem(STORAGE_KEY);
-                if (cached) {
-                    const data = JSON.parse(cached);
-                    // Use cached data to populate UI immediately
-                    updateState(data.coords, data.params, data.city, data.country);
-                    setIsUsingCache(true);
-                }
-
-                // 2. Fetch Fresh Data
-                const { coords, params, city, country } = await getLocationAndMethod();
-
-                // 3. Update UI & Cache
-                updateState(coords, params, city, country);
-                await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ coords, params, city, country }));
-                setIsUsingCache(false);
-
-            } catch (error) {
-                // If fetch fails (offline), we already loaded cache if available.
-                // If no cache, then show error.
-                const cached = await AsyncStorage.getItem(STORAGE_KEY);
-                if (!cached) {
-                    setErrorMsg('حدث خطأ أثناء تحديد الموقع');
-                }
-                console.error(error);
-            } finally {
-                setLoading(false);
-            }
-        })();
-    }, []);
-
-    const updateState = (coords: any, params: any, city: string, country: string) => {
+    const updateState = async (coords: any, params: any, city: string, country: string) => {
         setLatestCoords(coords);
         setLatestParams(params);
         const coordinates = new Coordinates(coords.latitude, coords.longitude);
@@ -119,6 +130,14 @@ export default function PrayerTimesScreen() {
 
         const times = new PrayerTimes(coordinates, now, calcParams);
         setPrayerTimes(times);
+
+        // حفظ بيانات الصلاة
+        try {
+            await AsyncStorage.setItem('@prayer_screen_data_v1', JSON.stringify({ coords, params: calcParams, city, country }));
+        } catch (e) {
+            console.log('Failed to save prayer data', e);
+        }
+
         setLoading(false);
     };
 
@@ -151,17 +170,31 @@ export default function PrayerTimesScreen() {
     };
 
     const toggleNotification = async (prayerId: string) => {
+        const current = notificationSettings[prayerId];
+        let next: string = 'adhan';
+
+        // Backward compatibility: true means 'adhan', false means 'silent'
+        const currentState = typeof current === 'boolean' ? (current ? 'adhan' : 'silent') : (current || 'adhan');
+
+        if (currentState === 'adhan') next = 'notification';
+        else if (currentState === 'notification') next = 'silent';
+        else next = 'adhan';
+
         const newSettings = {
             ...notificationSettings,
-            [prayerId]: notificationSettings[prayerId] === false ? true : false
+            [prayerId]: next
         };
         setNotificationSettings(newSettings);
         await AsyncStorage.setItem('@prayer_notifications_settings_v1', JSON.stringify(newSettings));
 
+        let msg = 'تم تفعيل الأذان';
+        if (next === 'notification') msg = 'تم تفعيل إشعار صامت';
+        if (next === 'silent') msg = 'تم إيقاف التنبيه';
+
         Toast.show({
             type: 'success',
             text1: 'تنبيه',
-            text2: newSettings[prayerId] !== false ? 'تم تفعيل التنبيه لهذه الصلاة' : 'تم إيقاف التنبيه',
+            text2: msg,
             position: 'bottom',
             visibilityTime: 2000,
         });
@@ -284,19 +317,18 @@ export default function PrayerTimesScreen() {
                     {/* Header Top Section (Replaces Compass) */}
                     <View style={styles.topSection}>
                         <View style={{ flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-                            {/* Placeholder for alignment */}
+                            {/* Placeholder for centering */}
                             <View style={{ width: 36 }} />
 
                             {/* Title */}
-                            <Text style={styles.pageTitle}>مواقيت الصلاة</Text>
+                            <Text style={[styles.pageTitle,]}>مواقيت الصلاة</Text>
 
-                            {/* Test Notification Button */}
                             <TouchableOpacity
-                                onPress={() => setTestModalVisible(true)}
+                                onPress={() => router.navigate('/')}
                                 activeOpacity={0.7}
                                 style={{ padding: 8, backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 20 }}
                             >
-                                <BellRing size={20} color="#fbbf24" />
+                                <Home size={20} color="#fff" />
                             </TouchableOpacity>
                         </View>
 
@@ -305,6 +337,19 @@ export default function PrayerTimesScreen() {
                             <Text style={styles.locationText}>{locationName} , {country}</Text>
                             {isUsingCache && <Text style={styles.cacheText}> (محفوظ)</Text>}
                         </View>
+
+                        {/* Calculation Method */}
+                        {calcMethodName ? (
+                            <TouchableOpacity
+                                onPress={() => router.push('/settings')}
+                                activeOpacity={0.7}
+                                style={{ marginTop: 8, backgroundColor: 'rgba(212, 175, 55, 0.15)', paddingHorizontal: 12, paddingVertical: 5, borderRadius: 16, borderWidth: 1, borderColor: 'rgba(212, 175, 55, 0.3)' }}
+                            >
+                                <Text style={{ color: '#D4AF37', fontSize: 12, fontFamily: 'ReadexPro_400Regular', textAlign: 'center' }}>
+                                    الصلاة حسب: {calcMethodName}
+                                </Text>
+                            </TouchableOpacity>
+                        ) : null}
                     </View>
 
                     {/* Content Section */}
@@ -323,16 +368,19 @@ export default function PrayerTimesScreen() {
                                     <Text style={styles.prayerName}>{item.name}</Text>
 
                                     {/* Icon (Speaker) */}
-                                    {/* Icon (Speaker) */}
                                     <TouchableOpacity
                                         style={styles.iconContainer}
-                                        onPress={() => toggleNotification(item.id)}
+                                        onPress={() => router.push('/settings')}
+
                                     >
-                                        {notificationSettings[item.id] !== false ? (
-                                            <Volume2 size={20} color="#ffffff" />
-                                        ) : (
-                                            <VolumeX size={20} color="rgba(255, 255, 255, 0.5)" />
-                                        )}
+                                        {(() => {
+                                            const current = notificationSettings[item.id];
+                                            const currentState = typeof current === 'boolean' ? (current ? 'adhan' : 'silent') : (current || 'adhan');
+
+                                            if (currentState === 'adhan') return <Volume2 size={20} color="#D4AF37" />;
+                                            if (currentState === 'notification') return <BellRing size={20} color="#ffffff" />;
+                                            return <VolumeX size={20} color="rgba(255, 255, 255, 0.4)" />;
+                                        })()}
                                     </TouchableOpacity>
 
                                     {/* Time */}

@@ -1,8 +1,10 @@
 import { FontAwesome5 } from '@expo/vector-icons';
+import NetInfo from '@react-native-community/netinfo';
 import { AudioPlayer, createAudioPlayer, setAudioModeAsync } from 'expo-audio';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, DeviceEventEmitter, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import Toast from 'react-native-toast-message';
 
 const QuickAction = ({ iconName, label, onPress }: { iconName: string; label: string; onPress: () => void }) => {
     return (
@@ -20,6 +22,21 @@ const RadioAction = () => {
     const [isPlaying, setIsPlaying] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
+    useEffect(() => {
+        const sub = DeviceEventEmitter.addListener('stop_all_audio', (sourceId) => {
+            if (sourceId !== 'radio') {
+                if (isPlaying && player) {
+                    player.pause();
+                    setIsPlaying(false);
+                    if (typeof player.setActiveForLockScreen === 'function') {
+                        player.setActiveForLockScreen(false);
+                    }
+                }
+            }
+        });
+        return () => sub.remove();
+    }, [isPlaying, player]);
+
     async function handleToggle() {
         if (isLoading) return;
 
@@ -33,6 +50,18 @@ const RadioAction = () => {
                     setIsPlaying(false);
                 }
             } else {
+                const networkState = await NetInfo.fetch();
+                if (!networkState.isConnected) {
+                    Toast.show({
+                        type: 'error',
+                        text1: 'تنبيه',
+                        text2: 'تأكد من اتصالك بالإنترنت لتشغيل الإذاعة',
+                        position: 'bottom',
+                    });
+                    return;
+                }
+
+                DeviceEventEmitter.emit('stop_all_audio', 'radio');
                 setIsLoading(true);
                 if (player) {
                     if (typeof player.setActiveForLockScreen === 'function') {
@@ -96,7 +125,11 @@ export function QuickAccess() {
     return (
         <View style={styles.container}>
             <View style={styles.row}>
-                <RadioAction />
+                <QuickAction
+                    iconName="headphones"
+                    label="الاستماع للقرآن"
+                    onPress={() => router.push('/(tabs)/listen')}
+                />
                 <QuickAction
                     iconName="praying-hands"
                     label="الأذكار"
@@ -107,6 +140,22 @@ export function QuickAccess() {
                     label="القرآن الكريم"
                     onPress={() => router.push('/quran-web')}
                 />
+
+                <QuickAction
+                    iconName="book-reader"
+                    label="تفسير القرآن"
+                    onPress={() => router.push('/tafsir' )}
+                />
+
+            </View>
+
+            <View style={styles.row}>
+                <RadioAction />
+                {/* <QuickAction
+                    iconName="kaaba"
+                    label="القبلة"
+                    onPress={() => router.push('/(tabs)/qibla')}
+                /> */}
                 <QuickAction
                     iconName="mosque"
                     label="الصلاة"
@@ -117,26 +166,13 @@ export function QuickAccess() {
                     label="السبحة"
                     onPress={() => router.push('/tasbih')}
                 />
-            </View>
-
-            <View style={styles.row}>
                 <QuickAction
-                    iconName="kaaba"
-                    label="القبلة"
-                    onPress={() => router.push('/(tabs)/qibla')}
-                />
-                <QuickAction
-                    iconName="headphones"
-                    label="الصوتيات"
-                    onPress={() => router.push('/listen')}
-                />
-                <QuickAction
-                    iconName="book-reader"
-                    label="تفسير القرآن"
-                    onPress={() => router.push('/tafsir')}
+                    iconName="bell"
+                    label="التنبيهات"
+                    onPress={() => router.push('/settings')}
                 />
 
-                <View style={{ flex: 1 }} />
+                {/* <View style={{ flex: 1 }} /> */}
             </View>
         </View>
     );
@@ -145,7 +181,7 @@ export function QuickAccess() {
 const styles = StyleSheet.create({
     container: {
         width: '100%',
-        marginTop: 30,
+        marginTop: 20,
         paddingHorizontal: 20,
         gap: 25,
     },
@@ -154,11 +190,13 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'flex-start',
         width: '100%',
+
     },
     actionItem: {
         alignItems: 'center',
         gap: 8,
         flex: 1,
+
     },
     circle: {
         width: 56,
@@ -183,5 +221,6 @@ const styles = StyleSheet.create({
         fontSize: 12,
         textAlign: 'center',
         fontFamily: 'ReadexPro_400Regular',
+        lineHeight: 20,
     },
 });

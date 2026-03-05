@@ -7,7 +7,6 @@ import { HapticTab } from '@/components/haptic-tab';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { FontAwesome5 } from '@expo/vector-icons';
-import { Hexagon } from 'lucide-react-native';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -56,14 +55,14 @@ export default function TabLayout() {
               name="home"
               size={24}
               color={color}
-              // fill={focused ? theme.gold : 'transparent'}
-              // strokeWidth={focused ? 0 : 1.5}
+            // fill={focused ? theme.gold : 'transparent'}
+            // strokeWidth={focused ? 0 : 1.5}
             />
           ),
         }}
       />
 
-      {/* 1. Compass (Left) */}
+      {/* 1. Qibla */}
       <Tabs.Screen
         name="qibla"
         options={{
@@ -103,12 +102,13 @@ export default function TabLayout() {
         }}
       /> */}
 
-      {/* 5. Tasbih */}
+      {/* 5. Listen Quran */}
       <Tabs.Screen
-        name="tasbih"
+        name="listen"
         options={{
-          title: 'السبحة',
-          tabBarIcon: ({ color }) => <FontAwesome5 name="stopwatch" size={20} color={color} />,
+          title: 'الاستماع',
+          tabBarIcon: ({ color }) => <FontAwesome5 name="headphones" size={20} color={color} />,
+          tabBarStyle: { display: 'none' },
         }}
       />
 

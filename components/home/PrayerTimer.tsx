@@ -1,11 +1,11 @@
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import { requestPermissionsAsync, scheduleDailyPrayers } from '@/utils/notifications';
+import { requestPermissionsAsync } from '@/utils/notifications';
 import { getLocationAndMethod } from '@/utils/prayerCalculation';
 import { FontAwesome5 } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CalculationParameters, Coordinates, PrayerTimes } from 'adhan';
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
@@ -14,7 +14,7 @@ export function PrayerTimer() {
     const colorScheme = useColorScheme();
     const colors = Colors[colorScheme ?? 'light'].nusuk;
 
-    const [nextPrayer, setNextPrayer] = useState<{ name: string, time: Date } | null>(null);
+    const [nextPrayer, setNextPrayer] = useState<{ name: string, time: Date, isIqamah: boolean, iqamahTime?: Date } | null>(null);
     const [timeLeft, setTimeLeft] = useState<string>('00:00');
     const [loading, setLoading] = useState(true);
     const [isUsingCache, setIsUsingCache] = useState(false);
@@ -48,26 +48,62 @@ export function PrayerTimer() {
             }
 
             const prayerTimes = new PrayerTimes(coordinates, now, calcParams);
+            const current = prayerTimes.currentPrayer();
             const next = prayerTimes.nextPrayer();
 
-            if (next === 'none') {
-                // بعد العشاء — الصلاة التالية هي فجر الغد
-                const tomorrow = new Date(now);
-                tomorrow.setDate(tomorrow.getDate() + 1);
-                const tomorrowPrayerTimes = new PrayerTimes(coordinates, tomorrow, calcParams);
-                setNextPrayer({
-                    name: PRAYER_NAMES['fajr'],
-                    time: tomorrowPrayerTimes.fajr
-                });
-            } else {
-                const time = prayerTimes.timeForPrayer(next);
-                if (time) {
-                    setNextPrayer({
-                        name: PRAYER_NAMES[next],
-                        time: time
-                    });
+            let iqamahActive = false;
+
+            // تحقق من فترة الإقامة للصلاة الحالية
+            if (current !== 'none' && current !== 'sunrise') {
+                const currentPrayerTime = prayerTimes.timeForPrayer(current);
+                if (currentPrayerTime) {
+                    // مدد الإقامة التقريبية (بالدقائق)
+                    const IQAMAH_DURATIONS: Record<string, number> = {
+                        fajr: 20,
+                        dhuhr: 15,
+                        asr: 15,
+                        maghrib: 10,
+                        isha: 15
+                    };
+
+                    const iqamahDuration = IQAMAH_DURATIONS[current] || 20;
+                    const iqamahTime = new Date(currentPrayerTime.getTime() + iqamahDuration * 60000);
+
+                    if (now < iqamahTime) {
+                        // في وقت الإقامة
+                        setNextPrayer({
+                            name: PRAYER_NAMES[current],
+                            time: currentPrayerTime, // نحتفظ بوقت الأذان الأساسي للعرض
+                            isIqamah: true,
+                            iqamahTime: iqamahTime // الوقت المستهدف للعد التنازلي
+                        });
+                        iqamahActive = true;
+                    }
                 }
             }
+
+            if (!iqamahActive) {
+                if (next === 'none') {
+                    // بعد العشاء — الصلاة التالية هي فجر الغد
+                    const tomorrow = new Date(now);
+                    tomorrow.setDate(tomorrow.getDate() + 1);
+                    const tomorrowPrayerTimes = new PrayerTimes(coordinates, tomorrow, calcParams);
+                    setNextPrayer({
+                        name: PRAYER_NAMES['fajr'],
+                        time: tomorrowPrayerTimes.fajr,
+                        isIqamah: false
+                    });
+                } else {
+                    const time = prayerTimes.timeForPrayer(next);
+                    if (time) {
+                        setNextPrayer({
+                            name: PRAYER_NAMES[next],
+                            time: time,
+                            isIqamah: false
+                        });
+                    }
+                }
+            } // Close if (!iqamahActive)
             setLoading(false);
         } catch (e) {
             console.error('❌ خطأ في حساب أوقات الصلاة:', e);
@@ -75,76 +111,60 @@ export function PrayerTimer() {
         }
     }, []);
 
-    useEffect(() => {
-        let recalcInterval: any;
+    useFocusEffect(
+        useCallback(() => {
+            let recalcInterval: any;
 
-        const updatePrayerTimes = async () => {
-            try {
-                // 1. تحميل الكاش أولاً للعرض السريع
-                const cached = await AsyncStorage.getItem(STORAGE_KEY);
-                if (cached) {
-                    try {
-                        const { coords, params } = JSON.parse(cached);
-                        cachedCoordsRef.current = coords;
-                        cachedParamsRef.current = params;
-                        calculate(coords, params);
-                        setIsUsingCache(true);
-                        console.log('📦 PrayerTimer: تم تحميل الكاش');
+            const updatePrayerTimes = async () => {
+                try {
+                    // 1. تحميل الكاش أولاً للعرض السريع
+                    const cached = await AsyncStorage.getItem(STORAGE_KEY);
+                    if (cached) {
+                        try {
+                            const { coords, params } = JSON.parse(cached);
+                            cachedCoordsRef.current = coords;
+                            cachedParamsRef.current = params;
+                            calculate(coords, params);
+                            setIsUsingCache(true);
+                        } catch (parseError) {
+                            console.error('Error parsing cache:', parseError);
+                        }
+                    }
 
-                        // جدولة التنبيهات من الكاش أثناء الانتظار
-                        scheduleNotificationsForLoc(coords, params);
-                    } catch (parseError) {
-                        console.error('❌ خطأ في قراءة الكاش:', parseError);
+                    // 2. محاولة جلب بيانات جديدة
+                    const { coords, params, city, country } = await getLocationAndMethod();
+
+                    // 3. حفظ الكاش
+                    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ coords, params }));
+
+                    // 4. تحديث بالبيانات الجديدة
+                    cachedCoordsRef.current = coords;
+                    cachedParamsRef.current = params;
+                    calculate(coords, params);
+                    setIsUsingCache(false);
+
+                } catch (e) {
+                    console.log('PrayerTimer: Failed to update, using cache if available', e);
+                    if (!cachedCoordsRef.current) {
+                        setLoading(false);
                     }
                 }
+            };
 
-                // 2. محاولة جلب بيانات جديدة
-                const { coords, params } = await getLocationAndMethod();
+            requestPermissionsAsync().then(() => {
+                updatePrayerTimes();
+            });
 
-                // 3. حفظ الكاش
-                await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ coords, params }));
-
-                // 4. تحديث بالبيانات الجديدة
-                cachedCoordsRef.current = coords;
-                cachedParamsRef.current = params;
-                calculate(coords, params);
-                setIsUsingCache(false);
-                console.log('✅ PrayerTimer: تم التحديث ببيانات جديدة');
-
-                // جدولة التنبيهات للأيام القادمة
-                scheduleNotificationsForLoc(coords, params);
-
-            } catch (e) {
-                console.log('⚠️ PrayerTimer: فشل التحديث، استخدام الكاش إن وُجد', e);
-                // إذا لم يكن هناك بيانات محملة بعد (لا كاش ولا GPS)
-                if (!cachedCoordsRef.current) {
-                    setLoading(false);
+            // إعادة حساب الأوقات كل دقيقة بدون طلب GPS جديد
+            recalcInterval = setInterval(() => {
+                if (cachedCoordsRef.current && cachedParamsRef.current) {
+                    calculate(cachedCoordsRef.current, cachedParamsRef.current);
                 }
-            }
-        };
+            }, 60000);
 
-        const scheduleNotificationsForLoc = async (coords: any, params: any) => {
-            try {
-                await scheduleDailyPrayers(coords, params);
-            } catch (error) {
-                console.error('❌ خطأ في جدولة التنبيهات:', error);
-            }
-        };
-
-        // طلب صلاحيات التنبيهات أولاً
-        requestPermissionsAsync().then(() => {
-            updatePrayerTimes();
-        });
-
-        // إعادة حساب الأوقات كل دقيقة بدون طلب GPS جديد
-        recalcInterval = setInterval(() => {
-            if (cachedCoordsRef.current && cachedParamsRef.current) {
-                calculate(cachedCoordsRef.current, cachedParamsRef.current);
-            }
-        }, 60000);
-
-        return () => clearInterval(recalcInterval);
-    }, [calculate]);
+            return () => clearInterval(recalcInterval);
+        }, [calculate])
+    );
 
     // مؤقت العد التنازلي
     useEffect(() => {
@@ -152,7 +172,9 @@ export function PrayerTimer() {
 
         const timer = setInterval(() => {
             const now = new Date();
-            const diff = nextPrayer.time.getTime() - now.getTime();
+            // إذا كان وقت الإقامة، نعد تنازلياً لوقت الإقامة، وإلا لوقت الصلاة القادمة
+            const targetTime = nextPrayer.isIqamah && nextPrayer.iqamahTime ? nextPrayer.iqamahTime : nextPrayer.time;
+            const diff = targetTime.getTime() - now.getTime();
 
             if (diff <= 0) {
                 // انتهى الوقت — إعادة الحساب
@@ -162,10 +184,17 @@ export function PrayerTimer() {
             } else {
                 const hours = Math.floor(diff / (1000 * 60 * 60));
                 const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                if (hours > 0) {
-                    setTimeLeft(`${hours} ساعة و ${minutes.toString().padStart(2, '0')} دقيقة`);
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+                if (nextPrayer.isIqamah) {
+                    // عرض الدقائق والثواني للإقامة
+                    setTimeLeft(`${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
                 } else {
-                    setTimeLeft(`${minutes} دقيقة`);
+                    if (hours > 0) {
+                        setTimeLeft(`${hours} ساعة و ${minutes.toString().padStart(2, '0')} دقيقة`);
+                    } else {
+                        setTimeLeft(`${minutes} دقيقة`);
+                    }
                 }
             }
         }, 1000);
@@ -248,9 +277,11 @@ export function PrayerTimer() {
                 </View>
 
                 {/* Countdown / Remaining Time */}
-                <View style={styles.nextPrayerContainer}>
-                    <Text style={styles.nextPrayerText}>متبقي </Text>
-                    <Text style={styles.countdownText}>{timeLeft}</Text>
+                <View style={[styles.nextPrayerContainer, nextPrayer?.isIqamah && styles.iqamahContainer]}>
+                    <Text style={[styles.nextPrayerText, nextPrayer?.isIqamah && styles.iqamahText]}>
+                        {nextPrayer?.isIqamah ? 'الإقامة بعد' : 'متبقي'}
+                    </Text>
+                    <Text style={[styles.countdownText, nextPrayer?.isIqamah && styles.iqamahCountdownText]}>{timeLeft}</Text>
                 </View>
             </TouchableOpacity>
         </View>
@@ -261,10 +292,11 @@ const styles = StyleSheet.create({
     container: {
         alignItems: 'center',
         justifyContent: 'center',
-        marginTop: 40,
+        marginTop: 35,
+        marginBottom: 15,
     },
     kaabaContainer: {
-        marginBottom: 20,
+        marginBottom: 15,
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -283,7 +315,7 @@ const styles = StyleSheet.create({
     },
     datesContainer: {
         alignItems: 'center',
-        marginBottom: 20,
+        marginBottom: 5,
         gap: 4,
     },
     dateText: {
@@ -320,7 +352,7 @@ const styles = StyleSheet.create({
     nextPrayerContainer: {
         flexDirection: 'row-reverse',
         alignItems: 'center',
-        marginTop: 10,
+        marginTop: 5,
         backgroundColor: 'rgba(255, 255, 255, 0.1)',
         paddingHorizontal: 16,
         paddingVertical: 8,
@@ -338,6 +370,19 @@ const styles = StyleSheet.create({
         marginHorizontal: 4,
         minWidth: 80, // Prevent jitter
         textAlign: 'center',
+    },
+    iqamahContainer: {
+        backgroundColor: 'rgba(251, 191, 36, 0.15)', // Light gold background
+        borderColor: 'rgba(251, 191, 36, 0.4)',
+        borderWidth: 1,
+    },
+    iqamahText: {
+        color: '#fbbf24', // Gold
+    },
+    iqamahCountdownText: {
+        fontSize: 20,
+        color: '#fff',
+        letterSpacing: 1, // Space out minutes:seconds heavily
     },
     gregorianContainer: {
         flexDirection: 'row',

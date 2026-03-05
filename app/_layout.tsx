@@ -7,6 +7,7 @@ import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import '@/utils/notifications'; // تسجيل اعدادات التنبيهات
+import { initAllNotifications } from '@/utils/notifications';
 import { I18nManager, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { WebView } from 'react-native-webview';
@@ -36,11 +37,15 @@ export default function RootLayout() {
     ReadexPro_600SemiBold,
     ReadexPro_700Bold,
     UthmanicHafs: require('../assets/fonts/uthmanic_hafs_v22.ttf'),
+    hafssmart: require('../assets/fonts/hafssmart.8.ttf'),
   });
 
   useEffect(() => {
     if (loaded) {
       SplashScreen.hideAsync();
+
+      // جدولة جميع الإشعارات تلقائياً عند فتح التطبيق
+      initAllNotifications();
     }
   }, [loaded]);
 
@@ -60,7 +65,7 @@ export default function RootLayout() {
       {/* تحميل مسبق في الخلفية لصفحة القرآن لكي تفتح فوراً عند الطلب */}
       <View style={{ width: 1, height: 1, opacity: 0.01, position: 'absolute', top: -9999, left: -9999 }} pointerEvents="none">
         <WebView
-          source={{ uri: 'https://alquran-alkarim.com/apps/' }}
+          source={{ uri: 'https://moshfy.com/p/quran/' }}
           domStorageEnabled={true}
           cacheEnabled={true}
           cacheMode="LOAD_CACHE_ELSE_NETWORK"

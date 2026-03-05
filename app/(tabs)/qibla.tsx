@@ -5,7 +5,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Coordinates } from 'adhan';
 import * as Haptics from 'expo-haptics';
 import * as Location from 'expo-location';
-import { Stack, useFocusEffect } from 'expo-router';
+import { Stack, useFocusEffect, useRouter } from 'expo-router';
+import { Home } from 'lucide-react-native';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -17,6 +18,7 @@ const KAABA_LNG = 39.826206;
 
 export default function QiblaScreen() {
     const insets = useSafeAreaInsets();
+    const router = useRouter();
     const colorScheme = useColorScheme();
     const [heading, setHeading] = useState(0);
     // ...
@@ -198,7 +200,18 @@ export default function QiblaScreen() {
                 }}
             />
             <View style={[styles.contentContainer, { paddingTop: insets.top + 20, paddingBottom: insets.bottom + 90 }]}>
-                <Text style={styles.pageTitle}>اتجاه القبلة</Text>
+                <View style={{ flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', width: '100%', paddingHorizontal: 20, marginBottom: 20 }}>
+                                     <View style={{ width: 36 }} />
+
+                    <Text style={[styles.pageTitle, { marginBottom: 0 }]}>اتجاه القبلة</Text>
+                       <TouchableOpacity
+                        onPress={() => router.navigate('/')}
+                        activeOpacity={0.7}
+                        style={{ padding: 8, backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 20 }}
+                    >
+                        <Home size={20} color="#fff" />
+                    </TouchableOpacity>
+                </View>
                 {isUsingCache && (
                     <View style={styles.cacheIndicator}>
                         <Text style={styles.cacheText}>آخر موقع محفوظ (غير متصل)</Text>

@@ -96,10 +96,30 @@ export default function AdhkarDetailsScreen({ categoryId, categoryTitle }: Adhka
             console.error("Failed to load custom adhkar", e);
         }
 
-        const combinedData = [...customData, ...staticData];
+        // 3. Load Deleted and Edited Basic Adhkar
+        let deletedIds: string[] = [];
+        let editedRecords: Record<string, DhikrItem> = {};
+        try {
+            const savedDeleted = await AsyncStorage.getItem(`@adhkar_deleted_${categoryId}_v1`);
+            if (savedDeleted) {
+                deletedIds = JSON.parse(savedDeleted);
+            }
+            const savedEdited = await AsyncStorage.getItem(`@adhkar_edited_${categoryId}_v1`);
+            if (savedEdited) {
+                editedRecords = JSON.parse(savedEdited);
+            }
+        } catch (e) {
+            console.error("Failed to load deleted/edited adhkar", e);
+        }
+
+        const filteredStatic = staticData
+            .filter(item => !deletedIds.includes(item.id))
+            .map(item => editedRecords[item.id] ? { ...item, ...editedRecords[item.id] } : item);
+
+        const combinedData = [...customData, ...filteredStatic];
         setAdhkar(combinedData);
 
-        // 3. Load Progress (Reset to 0)
+        // 4. Load Progress (Reset to 0)
         const initial: Record<string, number> = {};
         combinedData.forEach(item => initial[item.id] = 0);
         setProgress(initial);
@@ -170,16 +190,24 @@ export default function AdhkarDetailsScreen({ categoryId, categoryTitle }: Adhka
         const count = parseInt(newDhikrCount) || 3;
 
         try {
-            // Get existing custom
-            const savedCustom = await AsyncStorage.getItem(getCustomAdhkarKey(categoryId));
-            let currentCustom: DhikrItem[] = savedCustom ? JSON.parse(savedCustom) : [];
-            let updatedCustom: DhikrItem[];
             let newAdhkarList: DhikrItem[];
 
             if (editingItem) {
                 // UPDATE EXISTING
                 const updatedItem = { ...editingItem, zkar_text1: newDhikrText, count: count };
-                updatedCustom = currentCustom.map(item => item.id === editingItem.id ? updatedItem : item);
+
+                if (editingItem.id.startsWith('custom_')) {
+                    const savedCustom = await AsyncStorage.getItem(getCustomAdhkarKey(categoryId));
+                    let currentCustom: DhikrItem[] = savedCustom ? JSON.parse(savedCustom) : [];
+                    const updatedCustom = currentCustom.map(item => item.id === editingItem.id ? updatedItem : item);
+                    await AsyncStorage.setItem(getCustomAdhkarKey(categoryId), JSON.stringify(updatedCustom));
+                } else {
+                    const editedKey = `@adhkar_edited_${categoryId}_v1`;
+                    const savedEdited = await AsyncStorage.getItem(editedKey);
+                    let currentEdited: Record<string, DhikrItem> = savedEdited ? JSON.parse(savedEdited) : {};
+                    currentEdited[editingItem.id] = updatedItem;
+                    await AsyncStorage.setItem(editedKey, JSON.stringify(currentEdited));
+                }
 
                 // Update State List
                 newAdhkarList = adhkar.map(item => item.id === editingItem.id ? updatedItem : item);
@@ -191,6 +219,9 @@ export default function AdhkarDetailsScreen({ categoryId, categoryTitle }: Adhka
                 });
             } else {
                 // CREATE NEW
+                const savedCustom = await AsyncStorage.getItem(getCustomAdhkarKey(categoryId));
+                let currentCustom: DhikrItem[] = savedCustom ? JSON.parse(savedCustom) : [];
+
                 const newItem: DhikrItem = {
                     id: `custom_${Date.now()}`,
                     zkar_text1: newDhikrText,
@@ -198,7 +229,9 @@ export default function AdhkarDetailsScreen({ categoryId, categoryTitle }: Adhka
                     count: count,
 
                 };
-                updatedCustom = [newItem, ...currentCustom];
+                const updatedCustom = [newItem, ...currentCustom];
+                await AsyncStorage.setItem(getCustomAdhkarKey(categoryId), JSON.stringify(updatedCustom));
+
                 newAdhkarList = [newItem, ...adhkar];
 
                 // Initialize progress for new item
@@ -211,9 +244,6 @@ export default function AdhkarDetailsScreen({ categoryId, categoryTitle }: Adhka
                     position: 'bottom',
                 });
             }
-
-            // Save Custom
-            await AsyncStorage.setItem(getCustomAdhkarKey(categoryId), JSON.stringify(updatedCustom));
 
             // Update State
             setAdhkar(newAdhkarList);
@@ -237,12 +267,22 @@ export default function AdhkarDetailsScreen({ categoryId, categoryTitle }: Adhka
 
     const handleDeleteDhikr = useCallback(async (id: string) => {
         try {
-            // Get existing custom
-            const savedCustom = await AsyncStorage.getItem(getCustomAdhkarKey(categoryId));
-            if (savedCustom) {
-                let currentCustom: DhikrItem[] = JSON.parse(savedCustom);
-                const updatedCustom = currentCustom.filter(item => item.id !== id);
-                await AsyncStorage.setItem(getCustomAdhkarKey(categoryId), JSON.stringify(updatedCustom));
+            if (id.startsWith('custom_')) {
+                // Get existing custom
+                const savedCustom = await AsyncStorage.getItem(getCustomAdhkarKey(categoryId));
+                if (savedCustom) {
+                    let currentCustom: DhikrItem[] = JSON.parse(savedCustom);
+                    const updatedCustom = currentCustom.filter(item => item.id !== id);
+                    await AsyncStorage.setItem(getCustomAdhkarKey(categoryId), JSON.stringify(updatedCustom));
+                }
+            } else {
+                const deletedKey = `@adhkar_deleted_${categoryId}_v1`;
+                const savedDeleted = await AsyncStorage.getItem(deletedKey);
+                let currentDeleted: string[] = savedDeleted ? JSON.parse(savedDeleted) : [];
+                if (!currentDeleted.includes(id)) {
+                    currentDeleted.push(id);
+                    await AsyncStorage.setItem(deletedKey, JSON.stringify(currentDeleted));
+                }
             }
 
             // Update State
@@ -271,16 +311,6 @@ export default function AdhkarDetailsScreen({ categoryId, categoryTitle }: Adhka
     }, [categoryId]);
 
     const handleLongPress = useCallback((item: DhikrItem) => {
-        if (!item.id.startsWith('custom_')) {
-            Toast.show({
-                type: 'info',
-                text1: 'تنبيه',
-                text2: 'لا يمكن تعديل أو حذف الأذكار الأساسية',
-                position: 'bottom',
-            });
-            return;
-        }
-
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
         Alert.alert(

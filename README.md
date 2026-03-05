@@ -5,11 +5,12 @@ Wird Al-Mumin is a comprehensive React Native application built with [Expo](http
 ## ✨ Features
 
 - **Quran Reader**: A smooth and performant reading experience utilizing Uthmani script and dynamic page rendering.
+- **Tafsir (Exegesis)**: Access "Tafsir Al-Muyassar" locally alongside the Quranic verses for deeper understanding.
 - **Prayer Times**: Accurate global prayer time calculations based on the user's location.
 - **Qibla Direction**: Compass integration for finding the exact Qibla direction.
-- **Background Audio**: Listen to Quran recitations seamlessly even when the app is in the background.
+- **Background Audio**: Listen to multiple Quran recitations seamlessly even when the app is in the background, with offline download capabilities.
 - **Push Notifications**: Receive timely reminders for prayer times.
-- **Offline Support**: Stores necessary data locally for swift loading and offline access.
+- **Offline Support**: Stores necessary data (like Tafsir and Audio) locally for swift loading and offline access.
 - **Modern & Responsive Design**: A refined, aesthetic UI optimized for both mobile and tablet devices.
 
 ## 🛠️ Tech Stack & Key Libraries
@@ -23,6 +24,8 @@ The application is built leveraging the modern React Native and Expo ecosystem:
 ### Key Libraries
 - **Quran & Islamic Tools**: 
   - [`@quranjs/api`](https://github.com/quran/api): Connecting with Quran.com APIs.
+  - **Quran.com API & AlQuran-AlKarim API**: Used for fetching high-quality audio recitations (`api.quran.com/api/v4` and `alquran-alkarim.com/api`).
+  - **Local Tafsir Data**: Parses local JSON data for offline fast-access "Tafsir Al-Muyassar".
   - [`adhan`](https://github.com/batoulapps/adhan-js): Highly accurate prayer time calculation.
 - **UI & Performance**:
   - [`@shopify/flash-list`](https://shopify.github.io/flash-list/): Fast and highly performant list rendering.

@@ -12,10 +12,10 @@ export default function HomeScreen() {
   return (
     <GradientBackground>
       <Header />
-      <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 90 }]} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 10 }]} showsVerticalScrollIndicator={false}>
         <PrayerTimer />
         <QuickAccess />
-        <View style={styles.spacer} />
+        {/* <View style={styles.spacer} /> */}
         <QuranSheet />
       </ScrollView>
     </GradientBackground>
@@ -27,7 +27,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     // paddingBottom: 80, // Handled inline
   },
-  spacer: {
-    height: 40,
-  },
+  // spacer: {
+  //   // height: 40,
+  // },
 });

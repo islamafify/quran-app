@@ -1,11 +1,11 @@
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import { useRouter } from 'expo-router';
-import { MessageCircleMore, Share2 } from 'lucide-react-native';
-import React from 'react';
-import { Platform, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FontAwesome5 } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import { Share2 } from 'lucide-react-native';
+import React from 'react';
+import { Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface HeaderProps {
     variant?: 'light' | 'dark';
@@ -31,7 +31,7 @@ export function Header({ variant = 'dark' }: HeaderProps) {
                 message: message,
                 // url: Platform.OS === 'ios' ? iosLink : androidLink,
                 title: 'تطبيق ورد المؤمن'
-            
+
             });
         } catch (error) {
             console.error(error);
@@ -48,7 +48,7 @@ export function Header({ variant = 'dark' }: HeaderProps) {
                 <TouchableOpacity onPress={() => router.push('/contact-us')}>
                     <View style={styles.kaabaContainer}>
                         <View style={styles.kaabaCircle}>
-                            <FontAwesome5 name='comment' size={20} color={'#fff'}/>
+                            <FontAwesome5 name='comment' size={20} color={'#fff'} />
                         </View>
                     </View>
                 </TouchableOpacity>

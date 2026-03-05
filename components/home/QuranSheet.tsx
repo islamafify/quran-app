@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
     },
     handleContainer: {
         alignItems: 'center',
-        marginBottom: 16,
+        // marginBottom: 16,
     },
     handle: {
         width: 40,
@@ -67,11 +67,11 @@ const styles = StyleSheet.create({
         flexDirection: 'row-reverse',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 20,
+        // marginBottom: 20,
     },
     title: {
         fontSize: 18,
-        fontFamily: 'ReadexPro_600SemiBold', // Updated font
+        fontFamily: 'hafssmart', // Updated font
         color: '#374151',
     },
     content: {
@@ -79,13 +79,13 @@ const styles = StyleSheet.create({
     },
     bismillah: {
         fontSize: 20,
-        fontFamily: 'ReadexPro_500Medium', // Updated font
-        marginBottom: 16,
+        fontFamily: 'hafssmart', // Updated font
+        marginBottom: 5,
         color: '#1F2937',
     },
     verses: {
         fontSize: 18,
-        fontFamily: 'ReadexPro_400Regular', // Updated font
+        fontFamily: 'hafssmart', // Updated font
         lineHeight: 32,
         textAlign: 'center',
         color: '#4B5563',

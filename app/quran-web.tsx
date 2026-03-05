@@ -1,8 +1,8 @@
 import { OfflineQuranReader } from '@/components/home/OfflineQuranReader';
 import NetInfo from '@react-native-community/netinfo';
 import { Stack } from 'expo-router';
-import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, DeviceEventEmitter, StyleSheet, View } from 'react-native';
 import { WebView } from 'react-native-webview';
 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -11,6 +11,42 @@ export default function QuranWebScreen() {
     const insets = useSafeAreaInsets();
     const [isOffline, setIsOffline] = useState(false);
     const [isLoading, setIsLoading] = useState(!(global as any).isQuranPreloaded);
+    const webViewRef = useRef<WebView>(null);
+
+    useEffect(() => {
+        const sub = DeviceEventEmitter.addListener('stop_all_audio', (sourceId) => {
+            if (sourceId !== 'web') {
+                webViewRef.current?.injectJavaScript(`
+                    (function() {
+                        const mediaElements = document.querySelectorAll('audio, video');
+                        mediaElements.forEach(media => {
+                            if (!media.paused) { media.pause(); }
+                        });
+                    })();
+                    true;
+                `);
+            }
+        });
+        return () => sub.remove();
+    }, []);
+
+    const injectedJS = `
+      document.addEventListener('play', function(e){
+        if(e.target.tagName === 'AUDIO' || e.target.tagName === 'VIDEO'){
+          window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'web_audio_play' }));
+        }
+      }, true);
+      true;
+    `;
+
+    const handleMessage = (event: any) => {
+        try {
+            const data = JSON.parse(event.nativeEvent.data);
+            if (data.type === 'web_audio_play') {
+                DeviceEventEmitter.emit('stop_all_audio', 'web');
+            }
+        } catch (e) { }
+    }
 
     useEffect(() => {
         const unsubscribe = NetInfo.addEventListener(state => {
@@ -41,7 +77,10 @@ export default function QuranWebScreen() {
             ) : (
                 <View style={styles.webview}>
                     <WebView
-                        source={{ uri: 'https://alquran-alkarim.com/apps/' }}
+                        ref={webViewRef}
+                        injectedJavaScript={injectedJS}
+                        onMessage={handleMessage}
+                        source={{ uri: 'https://moshfy.com/p/quran/' }}
                         style={styles.webview}
                         domStorageEnabled={true}
                         cacheEnabled={true}
