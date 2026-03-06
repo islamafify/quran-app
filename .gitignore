@@ -56,3 +56,5 @@ eas.json
 build/
 *.log
 .env*
+
+.env.local

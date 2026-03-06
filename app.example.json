@@ -2,7 +2,7 @@
   "expo": {
     "name": "ورد المؤمن",
     "slug": "wird-al-mumin",
-    "version": "1.0.5",
+    "version": "1.0.9",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "wird-al-mumin",
@@ -42,6 +42,12 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
+      [
+        "expo-audio",
+        {
+          "enableBackgroundPlayback": true
+        }
+      ],
       "expo-router",
       [
         "expo-splash-screen",
@@ -67,7 +73,12 @@
         "expo-notifications",
         {
           "icon": "./assets/images/notification_icon.png",
-          "color": "#fbbf24"
+          "color": "#fbbf24",
+          "sounds": [
+            "./assets/audio/zikr1.mp3",
+            "./assets/audio/zikr2.mp3",
+            "./assets/audio/adhan.mp3"
+          ]
         }
       ],
       "@react-native-community/datetimepicker"
@@ -78,7 +89,6 @@
     },
     "extra": {
       "router": {},
-
       "supportsRTL": false
     }
   }

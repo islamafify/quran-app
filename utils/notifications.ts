@@ -23,46 +23,52 @@ Notifications.setNotificationHandler({
     }),
 });
 
+const CHANNEL_ADHAN = 'prayers_adhan_v2';
+const CHANNEL_DEFAULT = 'prayers_default_v2';
+const CHANNEL_ZIKR_1 = 'zikr_1_v2';
+const CHANNEL_ZIKR_2 = 'zikr_2_v2';
+
+const LEGACY_CHANNELS = ['prayers', 'prayers_default', 'prayers_adhan', 'prayers_adhan2', 'zikr_1', 'zikr_2'];
+
 export async function setupAndroidNotificationChannels() {
     if (Platform.OS === 'android') {
         // تنظيف القنوات القديمة إذا وُجدت
         try {
             const allChannels = await Notifications.getNotificationChannelsAsync();
             for (const ch of allChannels) {
-                if (ch.id === 'prayers' || ch.id === 'prayers_adhan2' || (ch.id.startsWith('zikr_') && ch.id !== 'zikr_1' && ch.id !== 'zikr_2')) {
+                if (LEGACY_CHANNELS.includes(ch.id) || (ch.id.startsWith('zikr_') && ch.id !== CHANNEL_ZIKR_1 && ch.id !== CHANNEL_ZIKR_2)) {
                     await Notifications.deleteNotificationChannelAsync(ch.id);
                 }
             }
         } catch (_) { /* ignore */ }
 
-        // إنشاء قنوات الإشعارات الثابتة لـ Android
-        await Notifications.setNotificationChannelAsync('prayers_adhan', {
+        // إنشاء قنوات الإشعارات الثابتة لـ Android بمسميات صحيحة للامتداد
+        await Notifications.setNotificationChannelAsync(CHANNEL_ADHAN, {
             name: 'أوقات الصلاة (أذان)',
             importance: Notifications.AndroidImportance.HIGH,
             vibrationPattern: [0, 250, 250, 250],
             lightColor: '#fbbf24',
-            sound: 'adhan', // بدون امتداد لدعم أندرويد بشكل مثالي
+            sound: 'adhan.mp3', // مع الامتداد لدعم أندرويد
         });
-        await Notifications.setNotificationChannelAsync('prayers_default', {
+        await Notifications.setNotificationChannelAsync(CHANNEL_DEFAULT, {
             name: 'أوقات الصلاة (تنبيه عادي)',
             importance: Notifications.AndroidImportance.HIGH,
             vibrationPattern: [0, 250, 250, 250],
             lightColor: '#fbbf24',
-            sound: 'default',
         });
-        await Notifications.setNotificationChannelAsync('zikr_1', {
+        await Notifications.setNotificationChannelAsync(CHANNEL_ZIKR_1, {
             name: 'تذكير الذكر (صوت 1)',
             importance: Notifications.AndroidImportance.HIGH,
             vibrationPattern: [0, 250, 250, 250],
             lightColor: '#fbbf24',
-            sound: 'zikr1', // بدون امتداد
+            sound: 'zikr1.mp3', // مع الامتداد
         });
-        await Notifications.setNotificationChannelAsync('zikr_2', {
+        await Notifications.setNotificationChannelAsync(CHANNEL_ZIKR_2, {
             name: 'تذكير الذكر (صوت 2)',
             importance: Notifications.AndroidImportance.HIGH,
             vibrationPattern: [0, 250, 250, 250],
             lightColor: '#fbbf24',
-            sound: 'zikr2', // بدون امتداد
+            sound: 'zikr2.mp3', // مع الامتداد
         });
     }
 }
@@ -131,14 +137,14 @@ export async function schedulePrayerNotifications(prayers: { id: string, name: s
         const isEnabled = state !== 'silent';
 
         let playSoundConfig: string | boolean = false;
-        let channelId = Platform.OS === 'android' ? 'prayers_default' : undefined;
+        let channelId = Platform.OS === 'android' ? CHANNEL_DEFAULT : undefined;
 
         if (state === 'adhan') {
-            playSoundConfig = 'adhan.mp3';
-            channelId = Platform.OS === 'android' ? 'prayers_adhan' : undefined;
+            playSoundConfig = Platform.OS === 'android' ? true : 'adhan.mp3';
+            channelId = Platform.OS === 'android' ? CHANNEL_ADHAN : undefined;
         } else if (state === 'notification') {
             playSoundConfig = true;
-            channelId = Platform.OS === 'android' ? 'prayers_default' : undefined;
+            channelId = Platform.OS === 'android' ? CHANNEL_DEFAULT : undefined;
         }
 
         // التحقق من أن وقت الصلاة لم يمر بعد
@@ -155,7 +161,7 @@ export async function schedulePrayerNotifications(prayers: { id: string, name: s
                     trigger: {
                         type: Notifications.SchedulableTriggerInputTypes.DATE,
                         date: before5Mins,
-                        channelId: Platform.OS === 'android' ? 'prayers_default' : undefined
+                        channelId: Platform.OS === 'android' ? CHANNEL_DEFAULT : undefined
                     } as any, // fallback for Expo TS definitions
                 });
             }
@@ -231,35 +237,41 @@ export async function scheduleTestNotification(soundType: 'adhan' | 'notificatio
     const triggerDate = new Date(Date.now() + 6 * 1000); // 6 seconds from now
 
     let playSoundConfig: string | boolean = false;
-    let channelId = Platform.OS === 'android' ? 'prayers_default' : undefined;
+    let channelId = Platform.OS === 'android' ? CHANNEL_DEFAULT : undefined;
 
     if (soundType === 'adhan') {
-        playSoundConfig = 'adhan.mp3';
-        channelId = Platform.OS === 'android' ? 'prayers_adhan' : undefined;
+        playSoundConfig = Platform.OS === 'android' ? true : 'adhan.mp3';
+        channelId = Platform.OS === 'android' ? CHANNEL_ADHAN : undefined;
     } else if (soundType === 'notification') {
         playSoundConfig = true;
-        channelId = Platform.OS === 'android' ? 'prayers_default' : undefined;
+        channelId = Platform.OS === 'android' ? CHANNEL_DEFAULT : undefined;
     }
 
-    await Notifications.scheduleNotificationAsync({
-        identifier: 'TEST_NOTIFICATION_' + Date.now().toString(),
-        content: {
-            title: 'تنبيه صلاة تجريبي',
-            body: `هذا تنبيه للتجربة حان الآن وقت الصلاة المحددة (${formatTime(triggerDate)})`,
-            sound: playSoundConfig,
-        },
-        trigger: {
-            type: Notifications.SchedulableTriggerInputTypes.DATE,
-            date: triggerDate,
-            channelId: channelId
-        } as any,
-    });
+    try {
+        await Notifications.scheduleNotificationAsync({
+            identifier: 'TEST_NOTIFICATION_' + Date.now().toString(),
+            content: {
+                title: 'تنبيه صلاة تجريبي',
+                body: `هذا تنبيه للتجربة حان الآن وقت الصلاة المحددة (${formatTime(triggerDate)})`,
+                sound: playSoundConfig,
+            },
+            trigger: {
+                type: Notifications.SchedulableTriggerInputTypes.DATE,
+                date: triggerDate,
+                channelId: channelId
+            } as any,
+        });
+        return { success: true };
+    } catch (e: any) {
+        console.error('Test Notification Error:', e);
+        return { success: false, error: e.message || String(e) };
+    }
 }
 
 /**
  * جدولة تذكير "الصلاة على النبي" بشكل متكرر مستندة إلى الدقائق المحددة
  */
-export async function scheduleZikrNotification(enabled: boolean, intervalMins: number, audioFile: string = '1') {
+export async function scheduleZikrNotification(enabled: boolean, intervalMins: number, audioFile: string = '2') {
     // إلغاء الإشعارات السابقة الخاصة بالذكر
     const scheduled = await Notifications.getAllScheduledNotificationsAsync();
     for (const notif of scheduled) {
@@ -271,22 +283,29 @@ export async function scheduleZikrNotification(enabled: boolean, intervalMins: n
     if (!enabled || intervalMins <= 0) return;
 
     const soundName = audioFile === '2' ? 'zikr2.mp3' : 'zikr1.mp3';
-    const channelId = Platform.OS === 'android' ? (audioFile === '2' ? 'zikr_2' : 'zikr_1') : undefined;
+    const channelId = Platform.OS === 'android' ? (audioFile === '2' ? CHANNEL_ZIKR_2 : CHANNEL_ZIKR_1) : undefined;
+    const playSoundConfig = Platform.OS === 'android' ? true : soundName;
 
-    await Notifications.scheduleNotificationAsync({
-        identifier: `ZIKR_INTERVAL`,
-        content: {
-            title: 'صَلِّ على محمد',
-            body: 'من صلى على النبي ﷺ مرة، صلى الله عليه بها عشراً',
-            sound: soundName,
-        },
-        trigger: {
-            type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
-            seconds: intervalMins * 60,
-            repeats: true,
-            channelId: channelId,
-        } as any,
-    });
+    try {
+        await Notifications.scheduleNotificationAsync({
+            identifier: `ZIKR_INTERVAL`,
+            content: {
+                title: 'صَلِّ على محمد',
+                body: 'من صلى على النبي ﷺ مرة، صلى الله عليه بها عشراً',
+                sound: playSoundConfig,
+            },
+            trigger: {
+                type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+                seconds: intervalMins * 60,
+                repeats: true,
+                channelId: channelId,
+            } as any,
+        });
+        return { success: true };
+    } catch (e: any) {
+        console.error('Zikr Notification Error:', e);
+        return { success: false, error: e.message || String(e) };
+    }
 }
 
 /**
@@ -340,7 +359,7 @@ export async function initAllNotifications() {
                 const zikrInterval = await AsyncStorage.getItem('@settings_zikr_interval');
                 const zikrAudio = await AsyncStorage.getItem('@settings_zikr_audio');
                 const interval = zikrInterval ? Number(zikrInterval) : 15;
-                const audio = zikrAudio || '1';
+                const audio = zikrAudio || '2';
 
                 // تحقق إذا كان الذكر مجدول بالفعل
                 const scheduled = await Notifications.getAllScheduledNotificationsAsync();

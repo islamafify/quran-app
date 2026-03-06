@@ -9,7 +9,7 @@ import * as Notifications from 'expo-notifications';
 import { Stack, useRouter } from 'expo-router';
 import { ArrowLeft, BellRing, ChevronLeft, PlayCircle, Settings2, ShieldCheck, Volume2, VolumeX, X } from 'lucide-react-native';
 import React, { useEffect, useRef, useState } from 'react';
-import { Modal, ScrollView, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Modal, Platform, ScrollView, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 
@@ -21,7 +21,7 @@ export default function SettingsScreen() {
     const [zikrEnabled, setZikrEnabled] = useState(true);
     const [zikrInterval, setZikrInterval] = useState(60); // minutes default
     const [intervalInputStr, setIntervalInputStr] = useState('60');
-    const [zikrAudio, setZikrAudio] = useState('1'); // '1' or '2'
+    const [zikrAudio, setZikrAudio] = useState('2'); // '1' or '2'
     const [calcMethod, setCalcMethod] = useState('Egyptian');
     const [prayerNotifs, setPrayerNotifs] = useState<Record<string, string>>({
         fajr: 'adhan',
@@ -163,7 +163,12 @@ export default function SettingsScreen() {
         setZikrAudio(val);
         saveSetting('@settings_zikr_audio', val);
         if (zikrEnabled) {
-            await scheduleZikrNotification(true, zikrInterval, val);
+            Toast.show({ type: 'info', text1: 'جاري تحديث الذكر...', position: 'bottom' });
+            const result = await scheduleZikrNotification(true, zikrInterval, val);
+            if (result && !result.success) {
+                Toast.show({ type: 'error', text1: 'خطأ أثناء الجدولة', text2: String(result.error), position: 'bottom', visibilityTime: 5000 });
+                return; // لا تكمل تغيير الصوت أو رسالة النجاح في حالة الفشل
+            }
         }
 
         // تشغيل الصوت عند النقر
@@ -236,7 +241,10 @@ export default function SettingsScreen() {
                         body: 'هذا هو صوت الإشعار الافتراضي لجهازك',
                         sound: true,
                     },
-                    trigger: null
+                    trigger: {
+                        seconds: 1,
+                        channelId: Platform.OS === 'android' ? 'prayers_default_v2' : undefined
+                    } as any
                 });
             }
         } catch (e) {
@@ -465,9 +473,14 @@ export default function SettingsScreen() {
                         <View style={{ flexDirection: 'row-reverse', gap: 12, justifyContent: 'center' }}>
                             <TouchableOpacity
                                 style={[styles.chip, styles.chipActive, { flex: 1, alignItems: 'center', paddingVertical: 12, borderWidth: 1 }]}
-                                onPress={() => {
-                                    scheduleTestNotification('adhan');
-                                    Toast.show({ type: 'success', text1: 'تم جدولة الأذان التجريبي', text2: 'اخرج من التطبيق الآن وانتظر 6 ثوانٍ', position: 'bottom' });
+                                onPress={async () => {
+                                    Toast.show({ type: 'info', text1: 'جاري الجدولة...', position: 'bottom' });
+                                    const result = await scheduleTestNotification('adhan');
+                                    if (result.success) {
+                                        Toast.show({ type: 'success', text1: 'تم جدولة الأذان التجريبي', text2: 'اخرج من التطبيق الآن وانتظر 6 ثوانٍ', position: 'bottom' });
+                                    } else {
+                                        Toast.show({ type: 'error', text1: 'حدث خطأ (أذان)', text2: String(result.error), position: 'bottom', visibilityTime: 5000 });
+                                    }
                                 }}
                             >
                                 <Volume2 size={24} color="#D4AF37" style={{ marginBottom: 8 }} />
@@ -476,9 +489,14 @@ export default function SettingsScreen() {
 
                             <TouchableOpacity
                                 style={[styles.chip, { flex: 1, alignItems: 'center', paddingVertical: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)' }]}
-                                onPress={() => {
-                                    scheduleTestNotification('notification');
-                                    Toast.show({ type: 'success', text1: 'تم جدولة الإشعار التجريبي', text2: 'اخرج من التطبيق الآن وانتظر 6 ثوانٍ', position: 'bottom' });
+                                onPress={async () => {
+                                    Toast.show({ type: 'info', text1: 'جاري الجدولة...', position: 'bottom' });
+                                    const result = await scheduleTestNotification('notification');
+                                    if (result.success) {
+                                        Toast.show({ type: 'success', text1: 'تم جدولة الإشعار التجريبي', text2: 'اخرج من التطبيق الآن وانتظر 6 ثوانٍ', position: 'bottom' });
+                                    } else {
+                                        Toast.show({ type: 'error', text1: 'حدث خطأ (إشعار)', text2: String(result.error), position: 'bottom', visibilityTime: 5000 });
+                                    }
                                 }}
                             >
                                 <BellRing size={24} color="#fff" style={{ marginBottom: 8 }} />
